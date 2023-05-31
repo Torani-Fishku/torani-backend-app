@@ -1,4 +1,4 @@
-# Torani-Fishku/torani-backend-app
+### Torani-Fishku/torani-backend-app
 ## Sea Tides API
 This program is to fetch sea tides and weather information based on client's coordinate. The data is pulled from:
 https://peta-maritim.bmkg.go.id/public_api/perairan.
