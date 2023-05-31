@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const axios = require("axios");
 
-const polygons = require("./polygon.json");
+const polygons = require("../polygon.json");
 
 // Parse URL-encoded bodies (as sent by the client)
 app.use(express.urlencoded({ extended: true }));
