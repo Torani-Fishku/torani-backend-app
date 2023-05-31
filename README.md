@@ -1,3 +1,3 @@
 # torani-backend-app
 ## Sea Tides API
-Based on BMKG Oceanograpy APIs
+Based on BMKG Oceanograpy API
