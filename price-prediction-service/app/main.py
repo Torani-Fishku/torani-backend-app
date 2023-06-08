@@ -6,22 +6,21 @@ import numpy as np
 
 app = FastAPI()
 model_paths = {
-    "bandeng": "model/bandeng_model_lstm.h5",
-    "kembung_lelaki": "model/kembung_lelaki_model_lstm.h5",
-    "tenggiri": "model/tenggiri_model_lstm.h5",
-    "tongkol_abu": "model/tongkol_abu_model_lstm.h5",
-    "tongkol_komo": "model/tongkol_komo_model_lstm.h5",
+    "bandeng": "models/bandeng_model_lstm.h5",
+    "kembung_lelaki": "models/kembung_lelaki_model_lstm.h5",
+    "tenggiri": "models/tenggiri_model_lstm.h5",
+    "tongkol_abu": "models/tongkol_abu_model_lstm.h5",
+    "tongkol_komo": "models/tongkol_komo_model_lstm.h5",
     # Add more fish types and their corresponding model paths
 }
 
 data_paths = {
-    "bandeng": "dataset/bandeng_smoothed_data.csv",
-    "kembung_lelaki": "dataset/kembung_lelaki_smoothed_data.csv",
-    "tenggiri": "dataset/tenggiri_smoothed_data.csv",
-    "tongkol_abu": "dataset/tongkol_abu_smoothed_data.csv",
-    "tongkol_komo": "dataset/tongkol_komo_smoothed_data.csv"
+    "bandeng": "datasets/bandeng_smoothed_data.csv",
+    "kembung_lelaki": "datasets/kembung_lelaki_smoothed_data.csv",
+    "tenggiri": "datasets/tenggiri_smoothed_data.csv",
+    "tongkol_abu": "datasets/tongkol_abu_smoothed_data.csv",
+    "tongkol_komo": "datasets/tongkol_komo_smoothed_data.csv"
 }
-
 
 # Load all the models during start
 loaded_models = {}
@@ -73,14 +72,14 @@ def preprocess_data(data_paths,window_size):
         normalized_datasets[fish_type] = normal_scaler(df['harga'],fish_type)
 
 def df_to_X(df, window):
-  # Make the tail of the price data to array
-  # The array size is in the form of input of LSTM Neural Network
-  df_as_np = df.tail(window).to_numpy()
-  X = []
-  for i in range(len(df_as_np)-window+1):
-    row = [[a] for a in df_as_np[i:i+window]]
-    X.append(row)
-  return np.array(X, dtype=float)
+    # Make the tail of the price data to array
+    # The array size is in the form of input of LSTM Neural Network
+    df_as_np = df.tail(window).to_numpy()
+    X = []
+    for i in range(len(df_as_np)-window+1):
+        row = [[a] for a in df_as_np[i:i+window]]
+        X.append(row)
+    return np.array(X, dtype=float)
 
 def windowing_data(dictionary):
     #Loop for windowing the data by executing df_to_X function for each fish
@@ -88,6 +87,9 @@ def windowing_data(dictionary):
         windowed_X = df_to_X(item,window_size)
         windowed_data[fish_type]=windowed_X
         
+import pandas as pd
+import numpy as np
+
 def generate_predictions(n_time, fish_type, window=window_size):
     # Create an empty dataframe to store the predictions
     predictions_df = pd.DataFrame(columns=['Date', 'Price'])
@@ -96,7 +98,7 @@ def generate_predictions(n_time, fish_type, window=window_size):
     model = loaded_models.get(fish_type)
     
     # Load the fish price date
-    start_date= date_data.get(fish_type).iloc[-1]
+    start_date = date_data.get(fish_type).iloc[-1]
 
     # Reshape the input_data to maintain the original shape for future predictions
     input_data = windowed_data[fish_type].reshape(1, -1, 1)
@@ -109,8 +111,8 @@ def generate_predictions(n_time, fish_type, window=window_size):
         # Predict the next price using the model
         predicted_price = model.predict(input_data_pred)
         # Add the prediction to the dataframe
-        prediction_row = {'Date': start_date + pd.DateOffset(days=i), 'Price': unscaler(predicted_price,fish_type)[0][0]}
-        predictions_df = predictions_df.append(prediction_row, ignore_index=True)
+        prediction_row = pd.DataFrame({'Date': [start_date + pd.DateOffset(days=i)], 'Price': unscaler(predicted_price, fish_type)[0][0]})
+        predictions_df = pd.concat([predictions_df, prediction_row], ignore_index=True)
         
         # Update the input data for the next prediction
         input_data = np.concatenate((input_data, predicted_price.reshape(1, 1, 1)), axis=1)
@@ -123,7 +125,7 @@ windowing_data(normalized_datasets)
 # GET /
 @app.get("/")
 async def root():
-    return {"message": "Hello from the price prediction server!"}
+    return {"message": "Price prediction server is running!"}
 
 # GET /predict/{fish_type}/{date}
 @app.get("/predict/{fish_type}/{date}")
