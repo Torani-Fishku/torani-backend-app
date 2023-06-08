@@ -17,10 +17,13 @@ RUN pip install uvicorn
 COPY ./app/main.py /app/main.py
 
 # Copy the models to the container
-COPY ./model /app/model
+COPY ./models /app/models
 
-# Expose the port on which the FastAPI application runs (default is 8000)
-EXPOSE 8000
+# Copy the datasets to the container
+COPY ./datasets /app/datasets
+
+# Expose the port on which the FastAPI application runs
+EXPOSE 8080
 
 # Run the FastAPI application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
