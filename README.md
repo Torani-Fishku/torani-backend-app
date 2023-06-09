@@ -7,5 +7,5 @@ Get sea tides and weather information fetched from BMKG Oceanograpy
 ## 2. Price Prediction API
 Predict and forecast fish prices
 
-## 3. Another APIs
-More upcoming APIs will be developed soon...
+## 3. Analytics API
+Get sales analytics and total revenue
